@@ -1,0 +1,4 @@
+logging:
+  level:
+    org.apache.tomcat.util.net.NioEndpoint: OFF
+    root: trace
