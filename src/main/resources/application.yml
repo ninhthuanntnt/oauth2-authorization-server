@@ -2,3 +2,13 @@ logging:
   level:
     org.apache.tomcat.util.net.NioEndpoint: OFF
     root: trace
+# Config Spring thymeleaf hot reload
+spring:
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html

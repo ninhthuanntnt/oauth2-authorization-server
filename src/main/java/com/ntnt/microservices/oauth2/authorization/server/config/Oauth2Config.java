@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
@@ -38,11 +39,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-@Configuration
-@EnableWebSecurity
+@Configuration(proxyBeanMethods = false)
 public class Oauth2Config {
   @Bean
-  @Order(1)
+  @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
     http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -50,25 +50,14 @@ public class Oauth2Config {
     http
         // Redirect to the login page when not authenticated from the
         // authorization endpoint
-        .exceptionHandling((exceptions) ->
-                               exceptions.defaultAuthenticationEntryPointFor(
-                                   new LoginUrlAuthenticationEntryPoint("/login"),
-                                   new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
+
+        .exceptionHandling(
+            exceptionHandling ->
+                exceptionHandling
+                    .defaultAuthenticationEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"),
+                                                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
         // Accept access tokens for User Info and/or Client Registration
         .oauth2ResourceServer((resourceServer) -> resourceServer.jwt(Customizer.withDefaults()));
-
-    return http.build();
-  }
-
-  @Bean
-  @Order(2)
-  public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    http
-        .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-        // Form login handles the redirect to the login page from the
-        // authorization server filter chain
-        .formLogin(Customizer.withDefaults());
 
     return http.build();
   }
@@ -104,19 +93,19 @@ public class Oauth2Config {
                                                   .build();
 
     RegisteredClient publicClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                                                  .clientId("ntnt-public-oidc-client")
-                                                  .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-                                                  .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                                                  .redirectUri("https://oauth.pstmn.io/v1/callback")
-                                                  .postLogoutRedirectUri("http://127.0.0.1:8080")
-                                                  .scope(OidcScopes.OPENID)
-                                                  .scope(OidcScopes.PROFILE)
-                                                  .tokenSettings(TokenSettings.builder().build())
-                                                  .clientSettings(ClientSettings.builder()
-                                                                                .requireProofKey(true)
-                                                                                .requireAuthorizationConsent(true)
-                                                                                .build())
-                                                  .build();
+                                                    .clientId("ntnt-public-oidc-client")
+                                                    .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                                                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                                                    .redirectUri("https://oauth.pstmn.io/v1/callback")
+                                                    .postLogoutRedirectUri("http://127.0.0.1:8080")
+                                                    .scope(OidcScopes.OPENID)
+                                                    .scope(OidcScopes.PROFILE)
+                                                    .tokenSettings(TokenSettings.builder().build())
+                                                    .clientSettings(ClientSettings.builder()
+                                                                                  .requireProofKey(true)
+                                                                                  .requireAuthorizationConsent(true)
+                                                                                  .build())
+                                                    .build();
 
     return new InMemoryRegisteredClientRepository(oidcClient, publicClient);
   }

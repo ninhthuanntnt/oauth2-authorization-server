@@ -1,25 +1,23 @@
-# oauth2-authorization-server
+# Authorization code with PKCE
 
-Authorization code flow is the most common flow in OAuth2.0. It is used for web application and mobile application.
-This flow is used to get authorization code and then exchange it to access token.
+OAuth2 Authorization Code Grant with PKCE is a security extension to the Authorization Code grant type. PKCE stands for
+Proof Key for Code Exchange. Authorization Code with PKCE provides an additional layer of security to prevent certain
+kinds of attacks such as code injection, token theft and replay attacks using the Authorization Code.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Client
     participant AuthorizationServer
-    User ->> Client: Request "login with OAuth"
-    Client ->> AuthorizationServer: Redirect User to login page
-    AuthorizationServer -->> User: Display login page
-    User ->> AuthorizationServer: Enter credentials and log in
-    AuthorizationServer -->> Client: Generate Authorization Code with redirect_uri
-    Client ->> AuthorizationServer: Request access token with Authorization Code
-    AuthorizationServer -->> Client: Validate Authorization Code and return access token
-    User ->> Client: Authorized, redirect back to client app
-    Client -->> User: Display logged in page
-    User ->> Client: Use client app functionality
-    Client ->> AuthorizationServer: Make API requests with access token (Profile)
-    AuthorizationServer -->> Client: Return requested data (Profile)
+    User ->> Client: Access Request
+    Client ->> Client: Generate Code Verifier and Code Challenge
+    Client ->> AuthorizationServer: Authorization Code Request with Code Challenge
+    AuthorizationServer -->> User: Login Screen
+    User ->> AuthorizationServer: Enter Credentials
+    AuthorizationServer -->> Client: Authorization Code
+    Client ->> AuthorizationServer: Token Request with Code Verifier & Authorization Code
+    AuthorizationServer -->> Client: Access Token
+    Client -->> User: Access Granted
 ```
 
 For understanding how spring deal with it we will go through the flow step by step.
@@ -29,9 +27,12 @@ For understanding how spring deal with it we will go through the flow step by st
 ```
 Send request to 
 http://127.0.0.1:8080/oauth2/authorize?response_type=code
-&client_id=ntnt-oidc-client
-&redirect_url=https://oauth.pstmn.io/v1/callback
-&state=kjh812kiugh123iblj
+&client_id=ntnt-public-oidc-client
+&state=sdfhgsdgwwert
+&scope=openid
+&redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback
+&code_challenge=oJMKH9mH3EQYxNhWoIEMJzuzjUZZLhivTu5qs7h8kEc
+&code_challenge_method=S256
 ```
 
 ```mermaid 
@@ -102,6 +103,7 @@ classDiagram
 ```
 
 ## 2. Flow login
+
 ```mermaid 
 ---
 title: Flow Login
@@ -115,7 +117,7 @@ classDiagram
     ProviderManager0 --> ProviderManager1: parents
 
     ProviderManager1 --|> AuthenticationManager
-    ProviderManager1 --> DaoAuthenticationProvider : providers
+    ProviderManager1 --> DaoAuthenticationProvider: providers
 
     DaoAuthenticationProvider --|> AbstractUserDetailsAuthenticationProvider
     AbstractUserDetailsAuthenticationProvider --|> AuthenticationProvider
@@ -155,25 +157,28 @@ classDiagram
 
         +Authentication authenticate(Authentication authentication)
     }
-    class AbstractUserDetailsAuthenticationProvider{
+    class AbstractUserDetailsAuthenticationProvider {
         +Authentication authenticate(Authentication authentication)
     }
-    class DaoAuthenticationProvider{
+    class DaoAuthenticationProvider {
         -PasswordEncoder passwordEncoder
         -UserDetailsService userDetailsService
         -UserDetailsPasswordService userDetailsPasswordService
-        
+
         +UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
     }
 ```
+
 After Login Authentication (UsernamePasswordAuthenticationToken) is stored into Session (Using sessionId to retrieve it)
 
 ## 4. Flow Authorization Request After request
+
 Same flow as **1. Flow Authorization Request**, but now we have Authentication (UsernamePasswordAuthenticationToken)
 in Session
 Then after authenticate it will redirect consent screen **5. Flow Authorization Consent**
 
 ## 5. Flow Authorization Consent
+
 ```mermaid 
 ---
 title: Flow Authorization Consent
@@ -200,7 +205,7 @@ classDiagram
     OAuth2AuthorizationConsentAuthenticationProvider -- InMemoryOAuth2AuthorizationService
     InMemoryOAuth2AuthorizationService --|> OAuth2AuthorizationService
     note for InMemoryOAuth2AuthorizationService "This service is used to save every authorized client information 
-    such as client_id, user_id, scope, authorization_code, and other attributes" 
+    such as client_id, user_id, scope, authorization_code, and other attributes"
 
     class OAuth2AuthorizationEndpointFilter {
         -AuthenticationConverter authenticationConverter
@@ -252,32 +257,34 @@ classDiagram
         +findById(String id)
     }
 ```
+
 After finishing authorize consent, it will redirect to **6. Flow Client Authentication**
 
 ## 6. Flow Client Authentication & Token Response
+
 ### 6.1 Flow Client Authentication
-```mermaid
+PublicClientAuthenticationProvider will be used to authenticate code_challenge and code_verifier
+
+``mermaid
 ---
 title: Flow Client Authentication
 ---
 classDiagram
     OAuth2ClientAuthenticationFilter --> DelegatingAuthenticationConverter
     OAuth2ClientAuthenticationFilter --> ProviderManager
-    
+
     DelegatingAuthenticationConverter --|> AuthenticationConverter
     note for DelegatingAuthenticationConverter "Contains 4 AuthenticationConverter 
                                                 which are JwtClientAssertionAuthenticationConverter, 
                                                 ClientSecretBasicAuthenticationConverter, 
                                                 ClientSecretPostAuthenticationConverter, 
-                                                PublicClientSecretBasicAuthenticationConverter, 
-                                                But in this flow only ClientSecretBasicAuthenticationConverter, 
-                                                or ClientSecretPostAuthenticationConverter are supported"
-    DelegatingAuthenticationConverter --> ClientSecretBasicAuthenticationConverter
-    DelegatingAuthenticationConverter --> ClientSecretPostAuthenticationConverter
+                                                PublicClientAuthenticationConverter, 
+                                                But in this flow only PublicClientAuthenticationConverter are supported"
+    DelegatingAuthenticationConverter --> PublicClientAuthenticationConverter
 
     ProviderManager --|> AuthenticationManager
-    ProviderManager --> ClientSecretAuthenticationProvider
-    ClientSecretAuthenticationProvider --|> AuthenticationProvider
+    ProviderManager --> PublicClientAuthenticationProvider
+    PublicClientAuthenticationProvider --|> AuthenticationProvider
     note for ProviderManager "Contains up to 18 AuthenticationProviders 
                               but only ClientSecretAuthenticationProvider are supported "
 
@@ -301,16 +308,13 @@ classDiagram
         +Authentication authenticate(Authentication authentication)
         +boolean supports(Class~?~ authentication)
     }
-    
+
     class DelegatingAuthenticationConverter {
         -List~AuthenticationConverter~ converters
 
         +convert(HttpServletRequest request)
     }
-    class ClientSecretBasicAuthenticationConverter {
-        +convert(HttpServletRequest request)
-    }
-    class ClientSecretPostAuthenticationConverter {
+    class PublicClientAuthenticationConverter {
         +convert(HttpServletRequest request)
     }
     class ProviderManager {
@@ -318,15 +322,17 @@ classDiagram
 
         +Authentication authenticate(Authentication authentication)
     }
-    class ClientSecretAuthenticationProvider {
+    class PublicClientAuthenticationProvider {
         +Authentication authenticate(Authentication authentication)
-        
+
         +boolean supports(Class~?~ authentication)
     }
 ```
+
 After finishing this flow it will trigger **6.2 Flow Token Response**
 
 ### 6.2 Flow Token Response
+
 ```mermaid
 ---
 title: Token Response
@@ -344,7 +350,7 @@ classDiagram
                                                 OAuth2DeviceCodeAuthenticationConverter but in this flow only 
                                                 OAuth2AuthorizationCodeAuthenticationConverter are supported"
     DelegatingAuthenticationConverter --> OAuth2AuthorizationCodeAuthenticationConverter
-    
+
     ProviderManager --|> AuthenticationManager
     ProviderManager --> OAuth2AuthorizationCodeAuthenticationProvider
     OAuth2AuthorizationCodeAuthenticationProvider --|> AuthenticationProvider
@@ -390,6 +396,7 @@ classDiagram
         +boolean supports(Class~?~ authentication)
     }
 ```
+
 After finishing this flow, This server will return the access token and refresh token to the OAuth2 Client to use it
 to access the resource server or access to the user profile endpoint.
 
