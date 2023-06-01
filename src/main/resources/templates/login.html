@@ -6,7 +6,7 @@
     <title>Spring Authorization Server sample</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
           th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
-    <link rel="stylesheet" href="/static/assets/css/signin.css" th:href="@{/assets/css/signin.css}"/>
+    <link rel="stylesheet" href="/static/assets/css/authentication.css" th:href="@{/assets/css/authentication.css}"/>
 </head>
 <body>
 <div class="container">
@@ -18,11 +18,11 @@
             You have been logged out.
         </div>
         <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-        <div class="form-floating">
+        <div class="form-floating mb-3">
             <input type="text" id="username" name="username" class="form-control" required autofocus>
             <label for="username">Username</label>
         </div>
-        <div class="form-floating mt-1">
+        <div class="form-floating mb-3">
             <input type="password" id="password" name="password" class="form-control" required>
             <label for="password">Password</label>
         </div>
