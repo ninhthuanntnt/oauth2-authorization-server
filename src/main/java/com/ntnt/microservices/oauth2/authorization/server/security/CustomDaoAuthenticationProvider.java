@@ -14,7 +14,7 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
 
     Authentication successAuthentication = super.createSuccessAuthentication(principal, authentication, user);
 
-    if (((CustomUserDetails) user).isEnabled2FA()) {
+    if (((CustomUserDetails) user).isEnabledMfa()) {
       return new MfaAuthenticationToken(successAuthentication, null);
     }
 

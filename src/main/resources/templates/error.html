@@ -2,12 +2,21 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>2FA</title>
+    <title>Error</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
           th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
     <link rel="stylesheet" href="/static/assets/css/authentication.css" th:href="@{/assets/css/authentication.css}"/>
 </head>
 <body>
-Error
+<div class="container text-center">
+    <div class="text-danger">
+        <h1 th:text="'Status: ' + ${status}"></h1>
+    </div>
+    <div class="text-danger">
+        <h2 th:text="'Error: ' + ${error}"></h2>
+    </div>
+    <div class="text-danger">
+        <h2 th:text="'Message: ' + ${message}"></h2>
+    </div>
 </body>
 </html>

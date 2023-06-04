@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.warrenstrange:googleauth:1.0.0'
+	implementation 'dev.samstevens.totp:totp-spring-boot-starter:1.7.1'
 	implementation 'org.liquibase:liquibase-core:4.22.0'
 	implementation 'com.h2database:h2:2.1.214'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

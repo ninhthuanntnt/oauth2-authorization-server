@@ -8,6 +8,7 @@ import com.ntnt.microservices.oauth2.authorization.server.repository.UserDomainR
 import com.ntnt.microservices.oauth2.authorization.server.repository.UserRoleDomainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class UserAndRoleSeeder implements CommandLineRunner {
   private final UserDomainRepository userDomainRepository;
   private final UserRoleDomainRepository userRoleDomainRepository;
   private final RoleDomainRepository roleDomainRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   public void run(String... args) throws Exception {
@@ -28,13 +30,14 @@ public class UserAndRoleSeeder implements CommandLineRunner {
 
     List<UserDomain> userDomains = List.of(UserDomain.builder()
                                                      .username("user1")
-                                                     .password("{noop}user1")
-                                                     .enabled2Fa(false)
+                                                     .password(passwordEncoder.encode("user1"))
+                                                     .enabledMfa(false)
                                                      .build(),
                                            UserDomain.builder()
                                                      .username("user2")
-                                                     .password("{noop}user2")
-                                                     .enabled2Fa(true)
+                                                     .password(passwordEncoder.encode("user2"))
+                                                     .enabledMfa(true)
+                                                     .mfaSecret("BODFUWND47EX3OIHUZIYKG4OGKQR7W4B")
                                                      .build());
     userDomainRepository.saveAll(userDomains);
 

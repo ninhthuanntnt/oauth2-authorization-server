@@ -37,3 +37,12 @@ spring:
     encoding: UTF-8
     servlet:
       content-type: text/html
+
+totp:
+  secret:
+    length: 32
+  code:
+    length: 6
+  time:
+    period: 30
+    discrepancy: 2

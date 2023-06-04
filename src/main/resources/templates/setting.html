@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>MFA</title>
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
+        th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
+</head>
+<body>
+<div class="container">
+  <div class="mt-3">
+    <h2>Settings</h2>
+  </div>
+  <form th:action="@{/mfa/setup}" method="post">
+    <div class="form-check form-switch">
+      <input class="form-check-input"
+             type="checkbox"
+             id="enabledMfa"
+             name="enabledMfa"
+             th:checked="${user.isEnabledMfa}">
+      <label class="form-check-label" for="enabledMfa">Enable MFA</label>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-primary" type="submit">Save MFA Settings</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

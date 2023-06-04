@@ -11,9 +11,10 @@
 ### Supported features:
 - [x] Authorization Code Flow
 - [x] Authorization Code Flow with PKCE
-- [x] 2FA with fixed code (123456)
-- [x] Custom login page
 - [x] Custom UserDetails
-- [x] Custom 2FA page
-- [x] Integrated with JPA to store client details (Registered Client, Authorization, AuthorizationConsent, User, and 
-  Role)
+- [x] Custom login page
+- [ ] Logout
+- [x] Integrated with JPA to store client details (Registered Client, Authorization, AuthorizationConsent, User, and
+    Role)
+- [x] Custom MFA page
+- [x] MFA using TOTP (Worked fine with Google Authenticator)

@@ -15,6 +15,6 @@ public abstract class CustomUserDetailsMixin {
                          @JsonProperty("accountNonLocked") boolean accountNonLocked,
                          @JsonProperty("credentialsNonExpired") boolean credentialsNonExpired,
                          @JsonProperty("enabled") boolean enabled,
-                         @JsonProperty("enabled2FA") boolean enabled2FA) {
+                         @JsonProperty("enabledMfa") boolean enabledMfa) {
   }
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MFA</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
+          th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
+</head>
+<body>
+<div class="container">
+    <div class="m-auto">
+        <h2>Using google authenticator app to scan this QR</h2>
+        <img th:src="${qrCode}" alt="qrCode">
+    </div>
+</div>
+</body>
+</html>

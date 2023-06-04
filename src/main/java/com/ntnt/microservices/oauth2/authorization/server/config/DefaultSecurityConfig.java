@@ -1,5 +1,7 @@
 package com.ntnt.microservices.oauth2.authorization.server.config;
 
+import com.ntnt.microservices.oauth2.authorization.server.helper.MfaHelper;
+import com.ntnt.microservices.oauth2.authorization.server.repository.UserDomainRepository;
 import com.ntnt.microservices.oauth2.authorization.server.security.CustomDaoAuthenticationProvider;
 import com.ntnt.microservices.oauth2.authorization.server.security.CustomSavedRequestAuthenticationSuccessHandler;
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthenticationFilter;
@@ -19,7 +21,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -44,7 +47,9 @@ import java.util.List;
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
 public class DefaultSecurityConfig {
-  public static final String MFA_URL = "/2fa";
+  public static final String MFA_URL = "/mfa";
+  private final UserDomainRepository userDomainRepository;
+  private final MfaHelper mfaHelper;
 
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -121,13 +126,18 @@ public class DefaultSecurityConfig {
   @Bean
   public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
     DaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
-    provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+    provider.setPasswordEncoder(passwordEncoder());
     provider.setUserDetailsService(userDetailsService);
     return provider;
   }
 
   @Bean
   public AuthenticationManager mfaAuthenticationManager() {
-    return new ProviderManager(new MfaAuthenticationProvider());
+    return new ProviderManager(new MfaAuthenticationProvider(userDomainRepository, mfaHelper));
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 }

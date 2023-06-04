@@ -16,8 +16,4 @@ public class LoginController {
     return "login";
   }
 
-  @GetMapping(DefaultSecurityConfig.MFA_URL)
-  public String login2fa() {
-    return "2fa";
-  }
 }

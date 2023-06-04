@@ -10,6 +10,7 @@ import java.util.List;
 
 @Getter
 public class CustomUserDetails implements UserDetails, CredentialsContainer {
+  private final Long id;
 
   private final String username;
 
@@ -25,16 +26,18 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
 
   private final boolean enabled;
 
-  private final boolean enabled2FA;
+  private final boolean enabledMfa;
 
-  public CustomUserDetails(String username,
+  public CustomUserDetails(Long id,
+                           String username,
                            String password,
                            List<GrantedAuthority> authorities,
                            boolean accountNonExpired,
                            boolean accountNonLocked,
                            boolean credentialsNonExpired,
                            boolean enabled,
-                           boolean enabled2FA) {
+                           boolean enabledMfa) {
+    this.id = id;
     this.username = username;
     this.password = password;
     this.authorities = authorities;
@@ -42,21 +45,23 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
     this.accountNonLocked = accountNonLocked;
     this.credentialsNonExpired = credentialsNonExpired;
     this.enabled = enabled;
-    this.enabled2FA = enabled2FA;
+    this.enabledMfa = enabledMfa;
   }
 
-  public CustomUserDetails(String username,
+  public CustomUserDetails(Long id,
+                           String username,
                            String password,
                            List<? extends GrantedAuthority> authorities,
-                           boolean enabled2FA) {
-    this(username, password, Collections.unmodifiableList(authorities),
-         true, true, true, true, enabled2FA);
+                           boolean enabledMfa) {
+    this(id, username, password, Collections.unmodifiableList(authorities),
+         true, true, true, true, enabledMfa);
   }
 
-  public CustomUserDetails(String username,
+  public CustomUserDetails(Long id,
+                           String username,
                            String password,
                            List<? extends GrantedAuthority> authorities) {
-    this(username, password, Collections.unmodifiableList(authorities),
+    this(id, username, password, Collections.unmodifiableList(authorities),
          true, true, true, true, false);
   }
 

@@ -24,13 +24,14 @@ public class JpaUserDetailsManager implements UserDetailsService, UserDetailsPas
         userDomainRepository
             .findByUsername(username)
             .map((UserDomain userDomain) ->
-                     new CustomUserDetails(userDomain.getUsername(),
+                     new CustomUserDetails(userDomain.getId(),
+                                           userDomain.getUsername(),
                                            userDomain.getPassword(),
                                            userDomain.getUserRoles()
                                                        .stream()
                                                        .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().getName()))
                                                        .collect(Collectors.toList()),
-                                           userDomain.isEnabled2Fa()))
+                                           userDomain.isEnabledMfa()))
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
 

@@ -2,21 +2,21 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>2FA</title>
+    <title>MFA</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
           th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
     <link rel="stylesheet" href="/static/assets/css/authentication.css" th:href="@{/assets/css/authentication.css}"/>
 </head>
 <body>
 <div class="container">
-    <form class="form-signin m-auto" th:action="@{/2fa}" method="post">
+    <form class="form-signin m-auto" th:action="@{/mfa}" method="post">
         <div th:if="${param.error}" class="alert alert-danger" role="alert">
             Invalid code.
         </div>
-        <h1 class="h3 mb-3 fw-normal">Please fill 2FA code</h1>
+        <h1 class="h3 mb-3 fw-normal">Please fill MFA code</h1>
         <div class="form-floating mb-3">
             <input type="text" id="code" name="code" class="form-control" required autofocus>
-            <label for="code">2FA code</label>
+            <label for="code">MFA code</label>
         </div>
         <div class="form-floating mb-3">
             <button class="w-100 btn btn-lg btn-primary btn-block" type="submit">Submit</button>

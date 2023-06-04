@@ -122,7 +122,7 @@
             <column name="password" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="enabled_2fa" type="boolean"/>
+            <column name="enabled_mfa" type="boolean"/>
         </createTable>
         <createIndex tableName="users" indexName="idx_users_username">
             <column name="username"/>
