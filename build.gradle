@@ -19,7 +19,11 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.warrenstrange:googleauth:1.0.0'
+	implementation 'org.liquibase:liquibase-core:4.22.0'
+	implementation 'com.h2database:h2:2.1.214'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
 	implementation 'org.webjars:webjars-locator-core'

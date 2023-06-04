@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -55,43 +56,6 @@ public class Oauth2Config {
         .oauth2ResourceServer((resourceServer) -> resourceServer.jwt(Customizer.withDefaults()));
 
     return http.build();
-  }
-
-  @Bean
-  public RegisteredClientRepository registeredClientRepository() {
-    RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                                                  .clientId("ntnt-oidc-client")
-                                                  .clientSecret("{noop}ntnt-secret")
-                                                  .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                                                  .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                                                  .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                                                  .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                                                  .redirectUri("https://oauth.pstmn.io/v1/callback")
-                                                  .postLogoutRedirectUri("http://127.0.0.1:8080")
-                                                  .scope(OidcScopes.OPENID)
-                                                  .scope(OidcScopes.PROFILE)
-                                                  .tokenSettings(TokenSettings.builder().build())
-                                                  .clientSettings(ClientSettings.builder()
-                                                                                .requireAuthorizationConsent(true)
-                                                                                .build())
-                                                  .build();
-
-    RegisteredClient publicClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                                                    .clientId("ntnt-public-oidc-client")
-                                                    .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-                                                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                                                    .redirectUri("https://oauth.pstmn.io/v1/callback")
-                                                    .postLogoutRedirectUri("http://127.0.0.1:8080")
-                                                    .scope(OidcScopes.OPENID)
-                                                    .scope(OidcScopes.PROFILE)
-                                                    .tokenSettings(TokenSettings.builder().build())
-                                                    .clientSettings(ClientSettings.builder()
-                                                                                  .requireProofKey(true)
-                                                                                  .requireAuthorizationConsent(true)
-                                                                                  .build())
-                                                    .build();
-
-    return new InMemoryRegisteredClientRepository(oidcClient, publicClient);
   }
 
   @Bean

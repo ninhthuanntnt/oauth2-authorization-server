@@ -2,8 +2,33 @@ logging:
   level:
     org.apache.tomcat.util.net.NioEndpoint: OFF
     root: trace
-# Config Spring thymeleaf hot reload
+
 spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    user: sa
+    password:
+    url: jdbc:h2:mem:testdb
+    default-schema: public
+    contexts: dev
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
   thymeleaf:
     cache: false
     prefix: file:src/main/resources/templates/

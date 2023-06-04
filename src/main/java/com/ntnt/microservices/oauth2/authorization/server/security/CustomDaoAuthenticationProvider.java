@@ -13,12 +13,8 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
   protected Authentication createSuccessAuthentication(Object principal, Authentication authentication, UserDetails user) {
 
     Authentication successAuthentication = super.createSuccessAuthentication(principal, authentication, user);
-    boolean enabled2FA = successAuthentication.getAuthorities()
-                                              .stream()
-                                              .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
-                                                                                            .equals("ROLE_2FA"));
 
-    if (enabled2FA) {
+    if (((CustomUserDetails) user).isEnabled2FA()) {
       return new MfaAuthenticationToken(successAuthentication, null);
     }
 

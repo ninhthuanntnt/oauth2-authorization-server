@@ -7,6 +7,7 @@ import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthentica
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthenticationToken;
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaTrustResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,11 +17,9 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -36,6 +35,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.List;
@@ -49,6 +49,7 @@ public class DefaultSecurityConfig {
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .securityContext(securityContext -> securityContext.securityContextRepository(securityContextRepository()))
         .authorizeHttpRequests(
             authorizeRequests ->
@@ -56,7 +57,9 @@ public class DefaultSecurityConfig {
                                                   "/static/**",
                                                   "/webjars/**",
                                                   "/login**",
-                                                  "/error").permitAll()
+                                                  "/error",
+                                                  "/oauth2/token").permitAll()
+                                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                                  .requestMatchers(MFA_URL)
                                  .access((authentication, context) -> new AuthorizationDecision(authentication.get() instanceof MfaAuthenticationToken))
                                  .anyRequest().authenticated())
@@ -70,27 +73,11 @@ public class DefaultSecurityConfig {
                                    return filter;
                                  }
                                }))
-        .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository()))
+        .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository())
+                          .ignoringRequestMatchers(PathRequest.toH2Console()))
         .addFilterBefore(mfaAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
-  }
-
-  @Bean
-  public UserDetailsService userDetailsService() {
-    UserDetails userDetails = User.builder()
-                                  .username("user")
-                                  .password("{noop}user")
-                                  .roles("USER")
-                                  .build();
-
-    UserDetails userDetails2FA = User.builder()
-                                     .username("user2fa")
-                                     .password("{noop}user2fa")
-                                     .roles("USER", "2FA")
-                                     .build();
-
-    return new InMemoryUserDetailsManager(userDetails, userDetails2FA);
   }
 
   @Bean
@@ -110,7 +97,6 @@ public class DefaultSecurityConfig {
     return new CustomSavedRequestAuthenticationSuccessHandler(MFA_URL);
   }
 
-
   @Bean
   public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
     return new CompositeSessionAuthenticationStrategy(List.of(
@@ -121,7 +107,7 @@ public class DefaultSecurityConfig {
 
   @Bean
   public CsrfTokenRepository csrfTokenRepository() {
-    return new HttpSessionCsrfTokenRepository();
+    return new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
   }
 
   @Bean
