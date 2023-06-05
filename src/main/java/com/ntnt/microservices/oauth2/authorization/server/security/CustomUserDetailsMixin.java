@@ -8,7 +8,8 @@ import java.util.List;
 
 public abstract class CustomUserDetailsMixin {
   @JsonCreator
-  CustomUserDetailsMixin(@JsonProperty("username") String username,
+  CustomUserDetailsMixin(@JsonProperty("id") Long id,
+                         @JsonProperty("username") String username,
                          @JsonProperty("password") String password,
                          @JsonProperty("authorities") List<GrantedAuthority> authorities,
                          @JsonProperty("accountNonExpired") boolean accountNonExpired,

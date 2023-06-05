@@ -1,12 +1,26 @@
-<html>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Home</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"
+          th:href="@{/webjars/bootstrap/css/bootstrap.css}"/>
 </head>
 <body>
-Spring Authorization Server
+<div class="container d-flex flex-column align-items-center">
+    <h1 class="mt-2">Spring Authorization Server</h1>
+    <div class="d-flex justify-content-evenly mt-5">
+        <h2 class="mx-2">Pages:</h2>
+        <div>
+            <button class="btn btn-primary mx-2" onclick="window.location.href='/setting'">Settings</button>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-primary mx-2" onclick="window.location.href='/logout'">Logout</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

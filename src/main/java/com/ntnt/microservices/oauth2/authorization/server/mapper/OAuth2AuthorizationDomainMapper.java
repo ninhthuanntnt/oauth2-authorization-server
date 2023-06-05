@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntnt.microservices.oauth2.authorization.server.domain.OAuth2AuthorizationDomain;
 import com.ntnt.microservices.oauth2.authorization.server.security.CustomUserDetails;
 import com.ntnt.microservices.oauth2.authorization.server.security.CustomUserDetailsMixin;
+import com.ntnt.microservices.oauth2.authorization.server.security.repository.JpaRegisteredClientRepository;
 import com.ntnt.microservices.oauth2.authorization.server.security.service.JpaOAuth2AuthorizationService;
+import org.apache.catalina.mbeans.SparseUserDatabaseMBean;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
@@ -42,6 +44,15 @@ public class OAuth2AuthorizationDomainMapper {
     this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
     this.objectMapper.registerModule(new CoreJackson2Module());
     this.objectMapper.addMixIn(CustomUserDetails.class, CustomUserDetailsMixin.class);
+  }
+
+  public static void main(String[] args) {
+    String value = """
+                   {"@class":"java.util.Collections$UnmodifiableMap","java.security.Principal":{"@class":"org.springframework.security.authentication.UsernamePasswordAuthenticationToken","authorities":["java.util.Collections$UnmodifiableRandomAccessList",[{"@class":"org.springframework.security.core.authority.SimpleGrantedAuthority","authority":"ROLE_USER"}]],"details":{"@class":"org.springframework.security.web.authentication.WebAuthenticationDetails","remoteAddress":"127.0.0.1","sessionId":"30ED71D6054952C13A4F938AF5496C17"},"authenticated":true,"principal":{"@class":"com.ntnt.microservices.oauth2.authorization.server.security.CustomUserDetails","id":1,"username":"user1","password":null,"authorities":["java.util.Collections$UnmodifiableRandomAccessList",[{"@class":"org.springframework.security.core.authority.SimpleGrantedAuthority","authority":"ROLE_USER"}]],"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true,"enabledMfa":false},"credentials":null},"org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest":{"@class":"org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest","authorizationUri":"http://127.0.0.1:8080/oauth2/authorize","authorizationGrantType":{"value":"authorization_code"},"responseType":{"value":"code"},"clientId":"ntnt-oidc-client","redirectUri":"https://oauth.pstmn.io/v1/callback","scopes":["java.util.Collections$UnmodifiableSet",["openid","profile"]],"state":"oilas987123hjljhdifs","additionalParameters":{"@class":"java.util.Collections$UnmodifiableMap","continue":""},"authorizationRequestUri":"http://127.0.0.1:8080/oauth2/authorize?response_type=code&client_id=ntnt-oidc-client&scope=openid%20profile&state=oilas987123hjljhdifs&redirect_uri=https://oauth.pstmn.io/v1/callback&continue=","attributes":{"@class":"java.util.Collections$UnmodifiableMap"}},"state":"Jubjrp7TZx-QThjTpPdUkcyNi416F6fUWYjEgJGRJGA="}
+                   """;
+    OAuth2AuthorizationDomainMapper mapper = new OAuth2AuthorizationDomainMapper();
+
+    System.out.println(mapper.parseMap(value));
   }
 
   public OAuth2Authorization toObject(OAuth2AuthorizationDomain entity, RegisteredClient registeredClient) {
