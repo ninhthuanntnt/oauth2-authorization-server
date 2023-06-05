@@ -54,6 +54,8 @@ public class DefaultSecurityConfig {
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
+        .sessionManagement(sessionManagement -> sessionManagement.maximumSessions(2)
+                                                                 .maxSessionsPreventsLogin(false))
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .securityContext(securityContext -> securityContext.securityContextRepository(securityContextRepository()))
         .authorizeHttpRequests(

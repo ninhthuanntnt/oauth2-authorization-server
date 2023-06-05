@@ -1,5 +1,6 @@
 package com.ntnt.microservices.oauth2.authorization.server.security;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class CustomUserDetails implements UserDetails, CredentialsContainer {
@@ -68,5 +70,18 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
   @Override
   public void eraseCredentials() {
     this.password = null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this==o) return true;
+    if (o==null || getClass()!=o.getClass()) return false;
+    CustomUserDetails that = (CustomUserDetails) o;
+    return Objects.equals(id, that.id) && Objects.equals(username, that.username);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, username);
   }
 }
