@@ -14,8 +14,8 @@
 - [x] Custom UserDetails
 - [x] Custom login page
 - [x] Allow maximum 2 sessions per user (Can change in the DefaultSecurityConfig)
-- [ ] Logout
-- [ ] Logout from all sessions
+- [x] Logout
+- [x] Logout from all sessions
 - [x] Integrated with JPA to store client details (Registered Client, Authorization, AuthorizationConsent, User, and
     Role)
 - [x] Custom MFA page

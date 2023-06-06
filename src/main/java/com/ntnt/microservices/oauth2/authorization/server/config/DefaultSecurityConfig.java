@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.GenericApplicationListenerAdapter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,6 +22,9 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.context.DelegatingApplicationListener;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +55,7 @@ public class DefaultSecurityConfig {
   public static final String MFA_URL = "/mfa";
   private final UserDomainRepository userDomainRepository;
   private final MfaHelper mfaHelper;
+  private final DelegatingApplicationListener delegatingApplicationListener;
 
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -82,6 +88,7 @@ public class DefaultSecurityConfig {
                                }))
         .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository())
                           .ignoringRequestMatchers(PathRequest.toH2Console()))
+        .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name())))
         .addFilterBefore(mfaAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
@@ -110,6 +117,14 @@ public class DefaultSecurityConfig {
         new ChangeSessionIdAuthenticationStrategy(),
         new CsrfAuthenticationStrategy(new HttpSessionCsrfTokenRepository()
         )));
+  }
+
+  @Bean
+  public SessionRegistry sessionRegistry() {
+    SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
+    delegatingApplicationListener.addListener(new GenericApplicationListenerAdapter(sessionRegistry));
+
+    return sessionRegistry;
   }
 
   @Bean

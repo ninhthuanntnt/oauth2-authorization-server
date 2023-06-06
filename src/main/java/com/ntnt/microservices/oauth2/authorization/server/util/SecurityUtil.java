@@ -4,6 +4,8 @@ package com.ntnt.microservices.oauth2.authorization.server.util;
 import com.ntnt.microservices.oauth2.authorization.server.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.security.Principal;
+
 public final class SecurityUtil {
 
   public static Long getCurrentUserId() {
@@ -12,5 +14,9 @@ public final class SecurityUtil {
                                                                                    .getPrincipal();
 
     return customUserDetails.getId();
+  }
+
+  public static Object getCurrentPrincipal() {
+    return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
   }
 }
