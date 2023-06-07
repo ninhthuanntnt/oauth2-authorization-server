@@ -11,8 +11,11 @@
 ### Supported features:
 - [x] Authorization Code Flow
 - [x] Authorization Code Flow with PKCE
+- [x] Token Introspection
+- [x] Token Revocation
 - [x] Custom UserDetails
 - [x] Custom login page
+- [ ] OAuth2 Login
 - [x] Allow maximum 2 sessions per user (Can change in the DefaultSecurityConfig)
 - [x] Logout
 - [x] Logout from all sessions
