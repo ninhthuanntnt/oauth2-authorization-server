@@ -17,7 +17,7 @@ public class MfaAuthenticationProvider implements AuthenticationProvider {
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     MfaAuthenticationToken mfaAuthenticationToken = (MfaAuthenticationToken) authentication;
-    UserDomain userDomain = userDomainRepository.findByUsername(mfaAuthenticationToken.getName())
+    UserDomain userDomain = userDomainRepository.getByUsernameOrEmail(mfaAuthenticationToken.getName())
                                                 .orElseThrow(() -> new NotFoundException(UserDomain.class));
 
     if (mfaHelper.verifyCode(userDomain.getMfaSecret(), mfaAuthenticationToken.getCode())) {

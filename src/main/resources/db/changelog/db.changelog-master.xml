@@ -6,4 +6,5 @@
 
     <include file="db/changelog/202306021739_init_base_table.xml"/>
     <include file="db/changelog/202306041551_add_mfa_secret_and_recovery_code_column.xml"/>
+    <include file="db/changelog/202306072238_add_email_and_provider_columns.xml"/>
 </databaseChangeLog>

@@ -1,6 +1,7 @@
 package com.ntnt.microservices.oauth2.authorization.server.domain;
 
 
+import com.ntnt.microservices.oauth2.authorization.server.domain.constant.IdentityProvider;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,6 +36,13 @@ public class UserDomain {
 
   @Column(name = "password", nullable = false)
   private String password;
+
+  @Column(name = "email", unique = true)
+  private String email;
+
+  @Builder.Default
+  @Column(name = "identity_provider", nullable = false)
+  private IdentityProvider identityProvider = IdentityProvider.LOCAL;
 
   @Column(name = "enabled_mfa", nullable = false)
   private boolean enabledMfa;

@@ -8,10 +8,12 @@ import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthentica
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthenticationProvider;
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaAuthenticationToken;
 import com.ntnt.microservices.oauth2.authorization.server.security.MfaTrustResolver;
+import com.ntnt.microservices.oauth2.authorization.server.security.federation.FederatedIdentitySuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,7 +52,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class DefaultSecurityConfig {
   public static final String MFA_URL = "/mfa";
   private final UserDomainRepository userDomainRepository;
@@ -78,6 +80,8 @@ public class DefaultSecurityConfig {
                                  .anyRequest().authenticated())
         .formLogin(formLogin -> formLogin.loginPage("/login")
                                          .successHandler(authenticationSuccessHandler()))
+        .oauth2Login(oauth2Login -> oauth2Login.loginPage("/login")
+                                               .successHandler(federatedAuthenticationSuccessHandler()))
         .exceptionHandling(exceptionHandling ->
                                exceptionHandling.withObjectPostProcessor(new ObjectPostProcessor<ExceptionTranslationFilter>() {
                                  @Override
@@ -107,6 +111,7 @@ public class DefaultSecurityConfig {
   }
 
   @Bean
+  @Primary
   public AuthenticationSuccessHandler authenticationSuccessHandler() {
     return new CustomSavedRequestAuthenticationSuccessHandler(MFA_URL);
   }
@@ -156,5 +161,10 @@ public class DefaultSecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public AuthenticationSuccessHandler federatedAuthenticationSuccessHandler() {
+    return new FederatedIdentitySuccessHandler(authenticationSuccessHandler(), userDomainRepository, passwordEncoder());
   }
 }

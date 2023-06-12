@@ -4,10 +4,14 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.22.xsd">
 
-    <changeSet id="202306041551_add_mfa_secret_and_recovery_code_column" author="ninhthuanntnt">
+    <changeSet id="202306072238_add_email_and_provider_columns" author="ninhthuanntnt">
         <addColumn tableName="users">
-            <column name="mfa_secret" type="varchar(255)"/>
-            <column name="mfa_recovery_code" type="varchar(255)"/>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="identity_provider" type="varchar(255)" defaultValue="LOCAL">
+                <constraints nullable="false"/>
+            </column>
         </addColumn>
     </changeSet>
 </databaseChangeLog>

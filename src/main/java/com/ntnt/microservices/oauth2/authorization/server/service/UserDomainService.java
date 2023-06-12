@@ -28,11 +28,11 @@ public class UserDomainService {
     UserDomain userDomain = userDomainRepository.findById(currentUserId)
                                                 .orElseThrow(() -> new NotFoundException(UserDomain.class));
 
-    if (enabledMfa == userDomain.isEnabledMfa()) {
+    if (enabledMfa==userDomain.isEnabledMfa()) {
       throw new RuntimeException("Mfa same status");
     }
 
-    if(enabledMfa) {
+    if (enabledMfa) {
       String secret = mfaHelper.generateSecretKey();
 
       userDomain.setEnabledMfa(true);

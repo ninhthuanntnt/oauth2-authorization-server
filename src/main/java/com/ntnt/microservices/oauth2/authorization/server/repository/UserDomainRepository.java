@@ -13,7 +13,11 @@ public interface UserDomainRepository extends JpaRepository<UserDomain, Long> {
          FROM UserDomain u
          LEFT JOIN FETCH u.userRoles ur
          LEFT JOIN FETCH ur.role r
-         WHERE u.username = :username
+         WHERE u.username = :value OR u.email = :value
          """)
-  Optional<UserDomain> findByUsername(String username);
+  Optional<UserDomain> getByUsernameOrEmail(String value);
+
+  boolean existsByUsername(String username);
+
+  boolean existsByEmail(String email);
 }

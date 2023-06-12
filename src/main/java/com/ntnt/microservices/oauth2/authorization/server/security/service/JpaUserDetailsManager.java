@@ -22,7 +22,7 @@ public class JpaUserDetailsManager implements UserDetailsService, UserDetailsPas
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return
         userDomainRepository
-            .findByUsername(username)
+            .getByUsernameOrEmail(username)
             .map((UserDomain userDomain) ->
                      new CustomUserDetails(userDomain.getId(),
                                            userDomain.getUsername(),
