@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
@@ -41,7 +42,7 @@ public class UserRoleDomain {
   @JoinColumn(name = "role_id", insertable = false, updatable = false)
   private RoleDomain role;
 
-  public static class UserRoleDomainId {
+  public static class UserRoleDomainId implements Serializable {
     private Long userId;
     private Long roleId;
 
