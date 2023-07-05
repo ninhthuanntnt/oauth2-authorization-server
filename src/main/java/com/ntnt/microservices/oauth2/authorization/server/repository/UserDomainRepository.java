@@ -20,4 +20,6 @@ public interface UserDomainRepository extends JpaRepository<UserDomain, Long> {
   boolean existsByUsername(String username);
 
   boolean existsByEmail(String email);
+
+  Optional<UserDomain> findByEmail(String email);
 }

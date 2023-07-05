@@ -30,6 +30,9 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -58,6 +61,8 @@ public class DefaultSecurityConfig {
   private final UserDomainRepository userDomainRepository;
   private final MfaHelper mfaHelper;
   private final DelegatingApplicationListener delegatingApplicationListener;
+  private final UserDetailsService userDetailsService;
+  private final OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository;
 
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -146,7 +151,7 @@ public class DefaultSecurityConfig {
   }
 
   @Bean
-  public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
+  public DaoAuthenticationProvider daoAuthenticationProvider() {
     DaoAuthenticationProvider provider = new CustomDaoAuthenticationProvider();
     provider.setPasswordEncoder(passwordEncoder());
     provider.setUserDetailsService(userDetailsService);
@@ -165,6 +170,11 @@ public class DefaultSecurityConfig {
 
   @Bean
   public AuthenticationSuccessHandler federatedAuthenticationSuccessHandler() {
-    return new FederatedIdentitySuccessHandler(authenticationSuccessHandler(), userDomainRepository, passwordEncoder());
+    return new FederatedIdentitySuccessHandler(authenticationSuccessHandler(),
+            userDomainRepository,
+            passwordEncoder(),
+            userDetailsService,
+            oAuth2AuthorizedClientRepository,
+            sessionRegistry());
   }
 }
